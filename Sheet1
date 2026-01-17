@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Data Spreadsheet</title>
+
+<style>
+body {
+  background: #f4f6f8;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select,
+.filters button {
+  padding: 10px;
+  font-size: 14px;
+}
+
+.item {
+  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Data dari Google Spreadsheet</h2>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Cari subjek...">
+
+    <select id="monthFilter">
+      <option value="">Semua Bulan</option>
+    </select>
+
+    <button onclick="resetFilter()">Reset</button>
+  </div>
+
+  <div id="results">Loading...</div>
+</div>
+
+<script>
+const SHEET_URL = "PASTE_URL_CSV_SPREADSHEET_KAMU_DI_SINI";
+
+let allData = [];
+
+fetch(SHEET_URL)
+  .then(res => res.text())
+  .then(csv => {
+    const lines = csv.split("\n");
+    const headers = lines[0].split(",");
+    
+    allData = lines.slice(1).map(line => {
+      const values = line.split(",");
+      let obj = {};
+      headers.forEach((h, i) => {
+        obj[h.trim()] = values[i]?.trim();
+      });
+      return obj;
+    });
+
+    populateMonthFilter(allData);
+    renderResults(allData);
+  })
+  .catch(() => {
+    document.getElementById("results").innerHTML =
+      "❌ Gagal mengambil data (cek publish spreadsheet)";
+  });
+
+function populateMonthFilter(data) {
+  const select = document.getElementById("monthFilter");
+  const months = [...new Set(data.map(d => d.bulan).filter(Boolean))];
+
+  months.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    select.appendChild(opt);
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input", filterData);
+document.getElementById("monthFilter").addEventListener("change", filterData);
+
+function filterData() {
+  const keyword = document.getElementById("searchInput").value.toLowerCase();
+  const month = document.getElementById("monthFilter").value;
+
+  const filtered = allData.filter(d => {
+    const matchText = d.subjek?.toLowerCase().includes(keyword);
+    const matchMonth = !month || d.bulan === month;
+    return matchText && matchMonth;
+  });
+
+  renderResults(filtered);
+}
+
+function renderResults(data) {
+  const el = document.getElementById("results");
+  el.innerHTML = "";
+
+  if (!data.length) {
+    el.innerHTML = "<p>Tidak ada data</p>";
+    return;
+  }
+
+  data.forEach(d => {
+    el.innerHTML += `
+      <div class="item">
+        <strong>${d.subjek || "-"}</strong><br>
+        Bulan: ${d.bulan || "-"}<br>
+        ${d.keterangan || ""}
+      </div>
+    `;
+  });
+}
+
+function resetFilter() {
+  searchInput.value = "";
+  monthFilter.value = "";
+  renderResults(allData);
+}
+</script>
+
+</body>
+</html>
