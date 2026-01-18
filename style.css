@@ -58,14 +58,22 @@ th, td {
 }
 
 .link-btn {
+  display: inline-block;
   padding: 6px 14px;
-  background: #6b4eff;
+  background-color: #6b4eff; /* ungu profesional */
   color: #fff;
-  border-radius: 6px;
   text-decoration: none;
+  border-radius: 6px;
   font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .link-btn:hover {
-  background: #5438d8;
+  background-color: #5438d8;
+  transform: translateY(-1px);
+}
+
+.link-btn:active {
+  transform: scale(0.97);
 }
