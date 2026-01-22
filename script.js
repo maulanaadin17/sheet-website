@@ -18,7 +18,7 @@ fetch(sheetURL)
 
 function initFilters() {
   fillSelect("filterMonth", 0);
-  fillSelect("filterSubjek", 1);
+  fillSelect("filterSubjek", 2);
   fillSelect("filterStatus", 6);
 
   document.querySelectorAll("select, #searchInput")
